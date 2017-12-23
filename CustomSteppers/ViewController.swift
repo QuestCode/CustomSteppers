@@ -19,8 +19,8 @@ class ViewController: UIViewController {
         stepper.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(stepper)
         
-        self.view.addContraintsWithFormat(format: "H:|-20-[v0(90)]", views: stepper)
-        self.view.addContraintsWithFormat(format: "V:|-30-[v0(30)]", views: stepper)
+        self.view.addContraintsWithFormat(format: "H:|-90-[v0(90)]", views: stepper)
+        self.view.addContraintsWithFormat(format: "V:|-90-[v0(30)]", views: stepper)
     }
 
     override func didReceiveMemoryWarning() {

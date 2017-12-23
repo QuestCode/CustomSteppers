@@ -12,6 +12,19 @@ class PullStepper: UIView {
 
     var value: Int = 0
     var numberLabelOrigin: CGPoint!
+    var numberLabelLeftConstraint: NSLayoutConstraint!
+    var numberLabelRightConstraint: NSLayoutConstraint!
+    var startingConstraints = [NSLayoutConstraint]()
+    var centerConstraints = [NSLayoutConstraint]()
+    
+    var activeConstraints = [NSLayoutConstraint]() {
+        willSet {
+            NSLayoutConstraint.deactivate(activeConstraints)
+        }
+        didSet {
+            NSLayoutConstraint.activate(activeConstraints)
+        }
+    }
     
     private let bgView: UIView = {
         let view = UIView()
@@ -69,20 +82,25 @@ class PullStepper: UIView {
         bgView.addSubview(plusView)
         bgView.bringSubview(toFront: numberLabel)
         
+        
+        // MARK: Constraints Section
         addContraintsWithFormat(format: "H:|[v0]|", views: bgView)
         addContraintsWithFormat(format: "V:|[v0]|", views: bgView)
         
-        bgView.addContraintsWithFormat(format: "H:|[v0(30)][v1][v2(30)]|", views: minusView,numberLabel,plusView)
+        bgView.addContraintsWithFormat(format: "H:|[v0(30)][v1(30)][v2(30)]|", views: minusView,numberLabel,plusView)
         bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: minusView)
         bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: numberLabel)
         bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: plusView)
         
+        
+        // MARK: Design Sections
         minusView.tintColor = color
         plusView.tintColor = color
         numberLabel.textColor = color
+    
         
-        numberLabelOrigin = numberLabel.frame.origin
         addPanGesture(view: numberLabel)
+        
         
         
     }
@@ -99,20 +117,22 @@ class PullStepper: UIView {
         
         switch sender.state {
         case .began, .changed:
-            numberView?.center = CGPoint(x: (numberView?.center.x)! + translation.x, y: (numberView?.center.y)!)
+            numberView?.center = CGPoint(x: (numberView?.center.x)! + translation.x/4, y: (numberView?.center.y)!)
             sender.setTranslation(CGPoint.zero, in: bgView)
         case .ended:
             if (numberView?.frame.intersects(minusView.frame))! {
                 UIView.animate(withDuration: 0.3, animations: {
-                    self.numberLabel.alpha = 0.0
+                    self.decrement()
+                    self.numberLabel.center.x = 45
                 })
             } else if (numberView?.frame.intersects(plusView.frame))! {
                 UIView.animate(withDuration: 0.3, animations: {
-                    self.numberLabel.alpha = 0.0
+                    self.increment()
+                    self.numberLabel.center.x = 45
                 })
             } else {
                 UIView.animate(withDuration: 0.3, animations: {
-                    self.numberLabel.frame.origin = self.numberLabelOrigin
+                   self.numberLabel.center.x = 45
                 })
             }
             break
@@ -125,12 +145,12 @@ class PullStepper: UIView {
         numberLabel.text = "\(value)"
     }
     
-    @objc private func increment(_: UIButton) {
+    @objc private func increment() {
         value = value + 1
         updateLabel()
     }
     
-    @objc private func decrement(_: UIButton) {
+    @objc private func decrement() {
         value = value - 1
         updateLabel()
     }
