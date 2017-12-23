@@ -11,20 +11,11 @@ import UIKit
 class PullStepper: UIView {
 
     var value: Int = 0
-    var numberLabelOrigin: CGPoint!
-    var numberLabelLeftConstraint: NSLayoutConstraint!
-    var numberLabelRightConstraint: NSLayoutConstraint!
-    var startingConstraints = [NSLayoutConstraint]()
-    var centerConstraints = [NSLayoutConstraint]()
+    var bgColor: UIColor = .black
+    var roundViewColor: UIColor = .white
+    var centerOfView: CGFloat = 0
     
-    var activeConstraints = [NSLayoutConstraint]() {
-        willSet {
-            NSLayoutConstraint.deactivate(activeConstraints)
-        }
-        didSet {
-            NSLayoutConstraint.activate(activeConstraints)
-        }
-    }
+    
     
     private let bgView: UIView = {
         let view = UIView()
@@ -59,12 +50,7 @@ class PullStepper: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView(color: .black)
-    }
-    
-    convenience init(color: UIColor) {
-        self.init()
-        setupView(color: color)
+        setupView()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -72,10 +58,12 @@ class PullStepper: UIView {
     }
     
     
-    private func setupView(color: UIColor) {
+    private func setupView() {
         updateLabel()
         
         addSubview(bgView)
+        let bgWhiteView = UIView(frame: bgView.frame)
+        bgView.addSubview(bgWhiteView)
         
         bgView.addSubview(minusView)
         bgView.addSubview(numberLabel)
@@ -87,16 +75,30 @@ class PullStepper: UIView {
         addContraintsWithFormat(format: "H:|[v0]|", views: bgView)
         addContraintsWithFormat(format: "V:|[v0]|", views: bgView)
         
-        bgView.addContraintsWithFormat(format: "H:|[v0(30)][v1(30)][v2(30)]|", views: minusView,numberLabel,plusView)
-        bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: minusView)
-        bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: numberLabel)
-        bgView.addContraintsWithFormat(format: "V:|[v0(30)]|", views: plusView)
+        bgView.addContraintsWithFormat(format: "H:|[v0(30)][v1(50)][v2(30)]|", views: minusView,numberLabel,plusView)
+        bgView.addContraintsWithFormat(format: "V:|-10-[v0(30)]", views: minusView)
+        bgView.addContraintsWithFormat(format: "V:|[v0(50)]|", views: numberLabel)
+        bgView.addContraintsWithFormat(format: "V:|-10-[v0(30)]", views: plusView)
         
+        print(centerOfView)
         
         // MARK: Design Sections
-        minusView.tintColor = color
-        plusView.tintColor = color
-        numberLabel.textColor = color
+        bgView.backgroundColor = bgColor
+        bgView.layer.cornerRadius = 25
+        
+        bgWhiteView.backgroundColor = .white
+        bgWhiteView.alpha = 0.7
+        
+        
+        
+        bgView.clipsToBounds = true
+        minusView.tintColor = roundViewColor
+        plusView.tintColor = roundViewColor
+        
+        numberLabel.backgroundColor = roundViewColor
+        numberLabel.textColor = bgColor
+        numberLabel.layer.cornerRadius = 24
+        numberLabel.clipsToBounds = true
     
         
         addPanGesture(view: numberLabel)
@@ -123,16 +125,16 @@ class PullStepper: UIView {
             if (numberView?.frame.intersects(minusView.frame))! {
                 UIView.animate(withDuration: 0.3, animations: {
                     self.decrement()
-                    self.numberLabel.center.x = 45
+                    self.numberLabel.center.x = 55
                 })
             } else if (numberView?.frame.intersects(plusView.frame))! {
                 UIView.animate(withDuration: 0.3, animations: {
                     self.increment()
-                    self.numberLabel.center.x = 45
+                    self.numberLabel.center.x = 55
                 })
             } else {
                 UIView.animate(withDuration: 0.3, animations: {
-                   self.numberLabel.center.x = 45
+                   self.numberLabel.center.x = 55
                 })
             }
             break
